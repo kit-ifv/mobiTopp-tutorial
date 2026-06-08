@@ -1,0 +1,30 @@
+BIKE:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        constant_matrix: "0.0"
+PEDESTRIAN: # TODO if mode is missing in yaml multi matrix return 0??
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        constant_matrix: "0.0"
+BIKESHARING:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $travelcosts/BS_COST.mtx.bz2
+CAR:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $travelcosts/CAR_COST.mtx.bz2
+PASSENGER:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $travelcosts/CAR_COST.mtx.bz2
+PUBLICTRANSPORT:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $travelcosts/PUT_COST.mtx.bz2

@@ -1,0 +1,30 @@
+BIKE:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $travel_times/BIKE_TTC.mtx.bz2
+BIKESHARING:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $travel_times/BIKE_TTC.mtx.bz2
+CAR:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $travel_times/CAR_TTC.mtx.bz2
+PASSENGER:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $travel_times/CAR_TTC.mtx.bz2
+PEDESTRIAN:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $travel_times/PED_TTC.mtx.bz2
+PUBLICTRANSPORT:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: $travel_times/PUT_TTC.mtx.bz2
