@@ -21,10 +21,10 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
 
-    implementation("edu.kit.ifv.mobitopp:mobitopp-reengineering:0.+")
-    ksp("edu.kit.ifv.mobitopp:processor:0.1+") // <-- this is required
-    implementation("edu.kit.ifv.mobitopp:processor:0.1+") // <-- this is required
-    ksp("edu.kit.ifv.mobitopp:annotations:0.1+") // <-- this is required
+    implementation("edu.kit.ifv.mobitopp:mobitopp-reengineering:1.0.0")
+    ksp("edu.kit.ifv.mobitopp:processor:1.0.0") // <-- this is required
+    implementation("edu.kit.ifv.mobitopp:processor:1.0.0") // <-- this is required
+    ksp("edu.kit.ifv.mobitopp:annotations:1.0.0") // <-- this is required
 
     implementation("edu.kit.ifv.mobitopp:kotlin-units:1.0.0")
     implementation("edu.kit.ifv.mobitopp:discrete-choice:1.1.0")

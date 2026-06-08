@@ -168,7 +168,7 @@ class RastattConfig :
     private val matrixBasePath = Path("data/matrix")
     override val costMatrixConfig: Path = matrixBasePath.resolve("cost-matrix-configuration.yaml")
     override val durationMatrixConfig: Path = matrixBasePath.resolve("time-matrix-configuration.yaml")
-    override val distanceMatrix: Path = matrixBasePath.resolve("other/CAR_DIS.mtx/CAR_DIS.mtx.bz2")
+    override val distanceMatrix: Path = matrixBasePath.resolve("other/CAR_DIS.mtx.bz2")
     override val matrixCreation: ZoneMatrixCreation = KeyBasedMatrixCreation
 
     override val resultDir: Path = Path("results/short-term")
