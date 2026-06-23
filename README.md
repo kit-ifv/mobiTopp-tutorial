@@ -47,3 +47,10 @@ After running the simulations, you can find the results in the `results/` direct
 - **Short-term results**: Located in `results/short-term/`. The simulated trips can be found in: `results/short-term/demandsimulation.csv`.
 
 
+## Docs
+The following documentation covers some topics in more detail:
+- [Model Steps](docs/model_steps.md)
+- [State Machines](docs/state_machine_system.md)
+- [CSV Parsing](docs/csv_parsing.md)
+- [Plots](docs/plots_system.md)
+
