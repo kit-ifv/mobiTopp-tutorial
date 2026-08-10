@@ -1,17 +1,20 @@
 package destination
 
+import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.enums.ActivityType
 import edu.kit.ifv.domain.shared.enums.household.EconomicStatus
 import edu.kit.ifv.domain.shared.enums.person.Employment
 import edu.kit.ifv.domain.shared.enums.person.Sex
+import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
-import edu.kit.ifv.domain.simulation.behavior.DestinationAlternative
-import edu.kit.ifv.domain.simulation.behavior.kilometers
-import edu.kit.ifv.domain.simulation.behavior.minutes
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationAlternative
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.kilometers
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.minutes
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.data.person.isAdult
 import edu.kit.ifv.utils.units.AbsoluteTime
 import util.Mode
-import util.ModeChoiceCharacteristics
 import util.TutorialActivity
 import util.bike
 import util.bikesharing
@@ -66,8 +69,11 @@ val DestinationAlternative.adultsInHousehold: Int get() = person.household.membe
 
 
 fun DestinationAlternative.isAgeIn(from: Int, to: Int) = (age in from..to)
+context(impedance: Impedance)
 fun DestinationAlternative.travelTimeMinutes(mode: Mode): Double = impedance.duration(origin, choice , mode, time).minutes
+context(impedance: Impedance)
 fun DestinationAlternative.travelCostEuro(mode: Mode): Double = impedance.cost(origin, choice, mode, time).euros
+context(impedance: Impedance)
 val DestinationAlternative.travelDistanceKm: Double get() = impedance.distance(origin, choice, car).kilometers
 
 
@@ -82,12 +88,15 @@ private val DestinationAlternative.nextFixedDestination: StandardLocation
 private val DestinationAlternative.nextFixedActivityEnd: AbsoluteTime
     get() = nextFixedActivity?.endTime ?: time.plus(7.hours)
 
+context(impedance: Impedance)
 fun DestinationAlternative.travelTimeMinutesToFixed(mode: Mode): Double =
     impedance.duration(choice, nextFixedDestination, mode, nextFixedActivityEnd).minutes
 
+context(impedance: Impedance)
 fun DestinationAlternative.travelCostEuroToFixed(mode: Mode): Double =
     impedance.cost(choice, nextFixedDestination, mode, nextFixedActivityEnd).euros
 
+context(impedance: Impedance)
 private val ModeChoiceCharacteristics.prevMode: Mode?
     get() = person.schedule.pastLegs().lastOrNull()?.transportType
 
@@ -135,21 +144,29 @@ private val leisurePurposes = listOf(
 )
 val DestinationAlternative.isAnyLeisurePurpose: Boolean get() = (purpose in leisurePurposes)
 
+context(attractivityModel: AttractivenessModel)
 val DestinationAlternative.attractivity: Double get() = attractivityModel.attractivenessFor(
     choice.zoneId,
     purpose
 ).value
 
 // availability properties
-private fun DestinationAlternative.isAvailable(mode: Mode): Boolean =
-    modeAvailabilityFilter.filter(mode)
+context(modeAvailabilityFilter: ModeAvailabilityModel)
+private fun ModeChoiceCharacteristics.isAvailable(mode: Mode): Boolean =
+    modeAvailabilityFilter.asResourceAvailabilityFilter().filter(mode)
 
-val DestinationAlternative.isPedAvailable get() = isAvailable(pedestrian)
-val DestinationAlternative.isBikeAvailable get() = isAvailable(bike)
-val DestinationAlternative.isCarAvailable get() = isAvailable(car)
-val DestinationAlternative.isPassengerAvailable get() = isAvailable(passenger)
-val DestinationAlternative.isPutAvailable get() = isAvailable(publictransport)
-val DestinationAlternative.isBikesharingAvailable get() = isAvailable(bikesharing)
+context(modeAvailabilityFilter: ModeAvailabilityModel, modeCharacteristic: ModeChoiceCharacteristics)
+val DestinationAlternative.isPedAvailable get() = modeCharacteristic.isAvailable(pedestrian)
+context(modeAvailabilityFilter: ModeAvailabilityModel, modeCharacteristic: ModeChoiceCharacteristics)
+val DestinationAlternative.isBikeAvailable get() = modeCharacteristic.isAvailable(bike)
+context(modeAvailabilityFilter: ModeAvailabilityModel, modeCharacteristic: ModeChoiceCharacteristics)
+val DestinationAlternative.isCarAvailable get() = modeCharacteristic.isAvailable(car)
+context(modeAvailabilityFilter: ModeAvailabilityModel, modeCharacteristic: ModeChoiceCharacteristics)
+val DestinationAlternative.isPassengerAvailable get() = modeCharacteristic.isAvailable(passenger)
+context(modeAvailabilityFilter: ModeAvailabilityModel, modeCharacteristic: ModeChoiceCharacteristics)
+val DestinationAlternative.isPutAvailable get() = modeCharacteristic.isAvailable(publictransport)
+context(modeAvailabilityFilter: ModeAvailabilityModel, modeCharacteristic: ModeChoiceCharacteristics)
+val DestinationAlternative.isBikesharingAvailable get() = modeCharacteristic.isAvailable(bikesharing)
 
 private val DestinationAlternative.prevMode: Mode?
     get() = person.schedule.pastLegs().lastOrNull()?.transportType

@@ -1,5 +1,6 @@
 @file:Suppress("UnusedPrivateProperty", "MagicNumber")
 
+import destination.WrappedDestinationChoice
 import destination.tutorialDestinationChoiceModel
 import edu.kit.ifv.application.config.subconfigs.BaseCSVFiles
 import edu.kit.ifv.application.config.subconfigs.CoreCSVConfig
@@ -7,18 +8,25 @@ import edu.kit.ifv.application.steps.ActivityTypesConfig
 import edu.kit.ifv.application.steps.AttractivenessFileConfig
 import edu.kit.ifv.application.steps.CarCodesConfig
 import edu.kit.ifv.application.steps.DrtSourceFilesConfig
+import edu.kit.ifv.application.steps.HasAttractivenessModel
 import edu.kit.ifv.application.steps.HasCarRepo
+import edu.kit.ifv.application.steps.HasChoiceModelModes
 import edu.kit.ifv.application.steps.HasDrtProviderAgentRepo
 import edu.kit.ifv.application.steps.HasDrtProviderRepo
 import edu.kit.ifv.application.steps.HasHouseholdRepo
+import edu.kit.ifv.application.steps.HasModeChoiceModel
 import edu.kit.ifv.application.steps.HasModes
 import edu.kit.ifv.application.steps.HasMutableAttractivenessModel
+import edu.kit.ifv.application.steps.HasMutableDestinationChoiceModel
 import edu.kit.ifv.application.steps.HasMutableImpedance
-import edu.kit.ifv.application.steps.HasMutablePersonBehavior
+import edu.kit.ifv.application.steps.HasMutableModeAvailabilityModel
 import edu.kit.ifv.application.steps.HasPersonAgentRepo
 import edu.kit.ifv.application.steps.HasPersonRepo
+import edu.kit.ifv.application.steps.HasReplanningStrategy
 import edu.kit.ifv.application.steps.HasSharingProviderAgentRepo
 import edu.kit.ifv.application.steps.HasSharingProviderRepo
+import edu.kit.ifv.application.steps.HasSpawnDestinationCharacteristics
+import edu.kit.ifv.application.steps.HasSpawnModeCharacteristics
 import edu.kit.ifv.application.steps.HasZoneRepo
 import edu.kit.ifv.application.steps.HouseholdCodesConfig
 import edu.kit.ifv.application.steps.MatrixConfig
@@ -34,7 +42,7 @@ import edu.kit.ifv.application.steps.model.assignHouseholdLocation
 import edu.kit.ifv.application.steps.model.assignMainCarUsers
 import edu.kit.ifv.application.steps.model.buildSimulationAgents
 import edu.kit.ifv.application.steps.model.gaussianDurationRandomizer
-import edu.kit.ifv.application.steps.model.loadBehaviorModels
+import edu.kit.ifv.application.steps.model.loadDestinationChoiceModel
 import edu.kit.ifv.application.steps.model.simpleDrtAlgorithm
 import edu.kit.ifv.application.steps.model.simulate
 import edu.kit.ifv.application.steps.parser.csv.bikeSharingProviderCsv
@@ -82,12 +90,16 @@ import edu.kit.ifv.core.results.plots.forData
 import edu.kit.ifv.core.results.plots.modeStringColor
 import edu.kit.ifv.core.results.plots.normalizeByGroup
 import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
+import edu.kit.ifv.domain.shared.behavior.ChoiceModelModes
 import edu.kit.ifv.domain.shared.car.CarId
 import edu.kit.ifv.domain.shared.car.CarSegment
 import edu.kit.ifv.domain.shared.data.household.HouseholdId
 import edu.kit.ifv.domain.shared.data.person.PersonId
 import edu.kit.ifv.domain.shared.datastructure.matrix.KeyBasedMatrixCreation
 import edu.kit.ifv.domain.shared.datastructure.matrix.ZoneMatrixCreation
+import edu.kit.ifv.domain.shared.datastructure.schedule.LinkTrip
+import edu.kit.ifv.domain.shared.datastructure.schedule.replanning.HomeActivityEndTimeAnchorStrategy
+import edu.kit.ifv.domain.shared.datastructure.schedule.replanning.ReplanningStrategy
 import edu.kit.ifv.domain.shared.enums.ActivityType
 import edu.kit.ifv.domain.shared.enums.MODEUNKOWN
 import edu.kit.ifv.domain.shared.enums.Mode
@@ -95,12 +107,18 @@ import edu.kit.ifv.domain.shared.enums.areatype.RegioStaR17
 import edu.kit.ifv.domain.shared.enums.areatype.RegionType
 import edu.kit.ifv.domain.shared.enums.household.EconomicStatus
 import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.simulation.agent.DrtProviderAgent
 import edu.kit.ifv.domain.simulation.agent.PersonAgent
 import edu.kit.ifv.domain.simulation.agent.SharingProviderAgent
-import edu.kit.ifv.domain.simulation.behavior.kilometers
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.availability.rules.ModeAvailabilityByRule
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristicsImpl
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristicsImpl
 import edu.kit.ifv.domain.simulation.data.car.MutablePrivateCar
 import edu.kit.ifv.domain.simulation.data.car.PrivateCar
 import edu.kit.ifv.domain.simulation.data.drt.DrtProvider
@@ -113,13 +131,17 @@ import edu.kit.ifv.domain.simulation.data.person.Person
 import edu.kit.ifv.domain.simulation.data.sharing.MutableSharingProvider
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProvider
 import edu.kit.ifv.domain.simulation.data.sharing.SharingProviderId
-import edu.kit.ifv.domain.simulation.events.PersonBehavior
+import edu.kit.ifv.domain.simulation.events.GenerateDestinationCharacteristics
+import edu.kit.ifv.domain.simulation.events.GenerateModeCharacteristics
 import edu.kit.ifv.domain.simulation.events.drtProviderStateMachine
 import edu.kit.ifv.domain.simulation.events.personStateMachine
 import edu.kit.ifv.domain.simulation.parser.SharingProviderByStationCsvColumns
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.UnitIntervalValue
+import edu.kit.ifv.units.kilograms
+import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share
 import edu.kit.ifv.utils.CodePlan
@@ -128,11 +150,17 @@ import edu.kit.ifv.utils.collections.asBins
 import edu.kit.ifv.utils.collections.mapToBins
 import edu.kit.ifv.utils.report.ReportBuilder
 import edu.kit.ifv.utils.units.AbsoluteTime
+import edu.kit.ifv.utils.units.Time
+import longterm.rules.RastattRuleProvider
+import mode.PlaceholderProvider
 import mode.tutorialModeChoiceModel
 import util.TutorialActivity
 import util.TutorialMode
 import util.tutorialChoiceModelModes
+import util.tutorialChoiceModelPurposes
 import java.nio.file.Path
+import kotlin.context
+import kotlin.getValue
 import kotlin.io.path.Path
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
@@ -178,6 +206,7 @@ class RastattConfig :
         dataRepo = Path("results/long-term/demand-data"),
         zoneRepo = Path("data/zone-repository/"),
         attractivitiesCSV = Path("data/zone-repository/attractivities.csv"),
+        fixedDestinationCSV = Path("fixeddestination.csv"),
     )
 
     override val bikeSharingStations: Path = Path("data/zone-repository/sharing/bikesharing-properties.csv")
@@ -211,7 +240,7 @@ class RastattConfig :
 //    override val ridePoolingMode: Mode = TutorialMode.RIDE_POOLING
 }
 
-class RastattContext :
+class RastattContext:
     HasZoneRepo<MaximalZone, MaximalZone>,
     HasHouseholdRepo<MutableHousehold, Household>,
     HasCarRepo<MutablePrivateCar, PrivateCar>,
@@ -225,12 +254,48 @@ class RastattContext :
     HasDrtProviderAgentRepo<DrtProviderAgent, DrtProviderAgent>,
     HasMutableImpedance,
     HasModes, // TODO discuss whether modes are context or config
-    HasMutablePersonBehavior {
+    HasMutableDestinationChoiceModel,
+    HasAttractivenessModel,
+    HasMutableModeAvailabilityModel,
+    HasSpawnModeCharacteristics,
+    HasModeChoiceModel,
+    HasChoiceModelModes,
+    HasSpawnDestinationCharacteristics,
+    HasReplanningStrategy {
     override val scenarioName: String = "regression test short term scenario"
     override val modes: CodePlan<Mode> = TutorialMode
     override lateinit var impedance: Impedance
+    override var modeAvailability: ModeAvailabilityModel = ModeAvailabilityByRule(
+        modes.values().associateWith {
+            PlaceholderProvider(it)
+        }
+    )
+    override var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics> =
+        WrappedDestinationChoice(
+            { impedance },
+            { attractiveness },
+            choicesSpawner = { zoneRepository.elements.map { it.centroidLocation }.toSet() },
+            identifiableMap = { it.zoneId },
+            name = "FastDestinationChoiceModel",
+            modeAvailability = modeAvailability
+        )
+
+    override val spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics> =  {
+            person, time, origin, destination, currentChoices,  custom ->
+        ModeChoiceCharacteristicsImpl(person, time, origin, destination, currentChoices, custom)
+    }
+    override val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics> by lazy{
+        context(impedance) {
+            tutorialModeChoiceModel(zoneRepository::getValue)
+        }
+    }
+    override val choiceModelModes: ChoiceModelModes = tutorialChoiceModelModes
+    override val spawnDestinationCharacteristics: GenerateDestinationCharacteristics<DestinationChoiceCharacteristics> = {
+            person: PersonAgent, time: Time, legs: LinkTrip ->
+        DestinationChoiceCharacteristicsImpl(person, time, legs.origin)
+    }
+    override val replanningStrategy: ReplanningStrategy = HomeActivityEndTimeAnchorStrategy(tutorialChoiceModelPurposes)
     override lateinit var attractiveness: AttractivenessModel
-    override lateinit var personBehavior: PersonBehavior
     override val execMode: ExecutionMode = ExecutionMode()
     override val report: ReportBuilder = initReport()
     override val mutableZoneRepository: MutableRepository<MaximalZone, ZoneId> = MapRepository("zone")
@@ -352,11 +417,10 @@ fun main(args: Array<String>) {
             assignMainCarUsers()
         }
 
-        // Initialize decision-making models for destination and mode choice.
-        loadBehaviorModels(
-            tutorialDestinationChoiceModel,
-            tutorialModeChoiceModel(zoneRepository::getValue),
-            tutorialChoiceModelModes,
+        // Initialize decision-making models for destination choice.
+
+        loadDestinationChoiceModel(
+            choiceModel = destinationChoiceModel
         )
 
         // Convert static data into active agents ready for the agent-based simulation.
@@ -431,13 +495,13 @@ fun main(args: Array<String>) {
             10.0 to 20.0,
             20.0 to 50.0,
             50.0 to 100.0
-        ).asBins(appendOpenBin = true)
+        ).map { it.first.kilometers to it.second.kilometers }.asBins(appendOpenBin = true)
 
         addPlot {
             forData {
                 personLegs()
             }.count {
-                it.distance(impedance).kilometers.mapToBins(distBins)
+                it.distance(impedance).mapToBins(distBins)
             }.normalizeByGroup().asHistogram {
                 name = "distance distribution"
                 xAxisLabel = "mode"
@@ -447,7 +511,6 @@ fun main(args: Array<String>) {
 
         // Export simulation log report as HTML file.
         createHtmlReport()
-
     }
 
 }

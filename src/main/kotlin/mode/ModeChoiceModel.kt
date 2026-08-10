@@ -1,10 +1,10 @@
 package mode
 
+import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
-import edu.kit.ifv.domain.simulation.behavior.isFemale
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import util.Mode
-import util.ModeChoiceCharacteristics
 import util.bike
 import util.bikesharing
 import util.car
@@ -103,7 +103,7 @@ val modeChoiceScenario1 = ModeChoiceParameters(
     b_tt_ped = 1.2,
 )
 
-
+context(impedance: Impedance)
 fun tutorialModeChoiceModel(getZone: (ZoneId) -> MaximalZone) = flatStructure<Mode, ModeChoiceCharacteristics, ModeChoiceParameters> {
 
     option(pedestrian) { choice, sit ->

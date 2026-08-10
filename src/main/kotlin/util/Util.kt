@@ -1,9 +1,9 @@
 package util
 
 import edu.kit.ifv.domain.shared.location.StandardLocation
-import edu.kit.ifv.domain.simulation.behavior.DestinationAlternative
-import edu.kit.ifv.domain.simulation.behavior.DestinationChoiceCharacteristics
-import edu.kit.ifv.domain.simulation.behavior.with
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationAlternative
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.with
 import edu.kit.ifv.mobitopp.discretechoice.distribution.NestedStructureDataBuilder
 import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
 import edu.kit.ifv.mobitopp.discretechoice.structure.EnumeratedStructureBuilder
@@ -77,7 +77,6 @@ fun <P> destinationChoiceStructure(scope: P.(DestinationAlternative) -> Double) 
         }
     }
 
-typealias ModeChoiceCharacteristics = edu.kit.ifv.domain.simulation.behavior.ModeChoiceCharacteristics
 typealias Mode = edu.kit.ifv.domain.shared.enums.Mode
 
 
