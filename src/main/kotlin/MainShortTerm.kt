@@ -191,7 +191,7 @@ class RastattConfig :
     override val seed: Long = 42L
     override val fractionOfPopulation: UnitIntervalValue = 1.0.share()
     override val simulationStart: AbsoluteTime = AbsoluteTime.START //Start of simulation is set to 0 (Monday 00:00)
-    override val simulationEnd: AbsoluteTime = simulationStart + 1.days
+    override val simulationEnd: AbsoluteTime = simulationStart + 7.days
     override val timeStep: Duration = 1.minutes
 
     override val errorHandling: ErrorHandling = ErrorHandling.THROW
