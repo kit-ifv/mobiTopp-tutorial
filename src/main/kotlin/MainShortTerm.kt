@@ -71,6 +71,7 @@ import edu.kit.ifv.application.steps.parser.csv.sharingProviders
 import edu.kit.ifv.application.steps.parser.csv.zoneCsv
 import edu.kit.ifv.application.steps.parser.csv.zones
 import edu.kit.ifv.application.steps.parser.csv.zonesByFootInRadius
+import edu.kit.ifv.application.steps.parser.loadArrayBackedImpedance
 import edu.kit.ifv.application.steps.parser.loadImpedance
 import edu.kit.ifv.application.steps.results.addPlot
 import edu.kit.ifv.application.steps.results.createHtmlReport
@@ -339,7 +340,7 @@ fun main(args: Array<String>) {
 
     }.steps {
         // Load travel time, cost, and distance matrices for all transport modes.
-        loadImpedance()
+        loadArrayBackedImpedance()
 
         // Define the spatial zones and their properties for the study area.
         zones(sealed = true) {
