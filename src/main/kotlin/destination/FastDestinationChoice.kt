@@ -1,5 +1,6 @@
 package destination
 
+import edu.kit.ifv.domain.shared.behavior.AttractivenessCacher
 import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.enums.person.Employment
 import edu.kit.ifv.domain.shared.location.Impedance
