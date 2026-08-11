@@ -3,7 +3,7 @@ package destination
 import edu.kit.ifv.domain.shared.behavior.AttractivenessCacher
 import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
 import edu.kit.ifv.domain.shared.enums.person.Employment
-import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.shared.location.ArrayBackedImpedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
@@ -54,14 +54,14 @@ private fun encodeDistanceKm(distanceKm: Double): Int {
 
 class WrappedDestinationChoice(
     // Because the short term config system tries to build things, i need to pass on all stuff as supplier lambdas and lazy constructors
-    val impedanceSpawner: () -> Impedance,
+    val impedanceSpawner: () -> ArrayBackedImpedance,
     val attractivenessModelSpawner: () -> AttractivenessModel,
     val identifiableMap: (StandardLocation) -> ZoneId = { it.zoneId },
     choicesSpawner: () -> Set<StandardLocation>,
     val modeAvailability: ModeAvailabilityModel,
     override val name: String,
 
-) : CharacteristicMapperChoiceModel<StandardLocation, DestinationChoiceCharacteristics, AttributesAndArrays>(){
+    ) : CharacteristicMapperChoiceModel<StandardLocation, DestinationChoiceCharacteristics, AttributesAndArrays>(){
 
     val delegatedChoiceModel: FixedChoiceModel<StandardLocation, AttributesAndArrays> by lazy { FastDestinationChoice(
         parameters = DestinationChoiceParameters(),

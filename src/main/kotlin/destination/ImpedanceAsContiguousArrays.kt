@@ -1,5 +1,6 @@
 package destination
 
+import edu.kit.ifv.domain.shared.location.ArrayBackedImpedance
 import edu.kit.ifv.domain.shared.location.Impedance
 import util.TutorialMode
 
@@ -96,7 +97,7 @@ class ImpedanceAsContiguousArrays(
     }
 
     companion object {
-        fun fromImpedance(impedance: Impedance, size: Int): ImpedanceAsContiguousArrays {
+        fun fromImpedance(impedance: ArrayBackedImpedance, size: Int): ImpedanceAsContiguousArrays {
             return ImpedanceAsContiguousArrays(
                 travelTimePed = impedance.durationArray(TutorialMode.PEDESTRIAN).values,
                 travelTimeBike = impedance.durationArray(TutorialMode.BIKE).values,

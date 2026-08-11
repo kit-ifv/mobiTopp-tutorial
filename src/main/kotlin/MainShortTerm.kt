@@ -8,6 +8,7 @@ import edu.kit.ifv.application.steps.ActivityTypesConfig
 import edu.kit.ifv.application.steps.AttractivenessFileConfig
 import edu.kit.ifv.application.steps.CarCodesConfig
 import edu.kit.ifv.application.steps.DrtSourceFilesConfig
+import edu.kit.ifv.application.steps.HasArrayBackedImpedance
 import edu.kit.ifv.application.steps.HasAttractivenessModel
 import edu.kit.ifv.application.steps.HasCarRepo
 import edu.kit.ifv.application.steps.HasChoiceModelModes
@@ -16,6 +17,7 @@ import edu.kit.ifv.application.steps.HasDrtProviderRepo
 import edu.kit.ifv.application.steps.HasHouseholdRepo
 import edu.kit.ifv.application.steps.HasModeChoiceModel
 import edu.kit.ifv.application.steps.HasModes
+import edu.kit.ifv.application.steps.HasMutableArrayBackedImpedance
 import edu.kit.ifv.application.steps.HasMutableAttractivenessModel
 import edu.kit.ifv.application.steps.HasMutableDestinationChoiceModel
 import edu.kit.ifv.application.steps.HasMutableImpedance
@@ -106,6 +108,7 @@ import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.enums.areatype.RegioStaR17
 import edu.kit.ifv.domain.shared.enums.areatype.RegionType
 import edu.kit.ifv.domain.shared.enums.household.EconomicStatus
+import edu.kit.ifv.domain.shared.location.ArrayBackedImpedance
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
@@ -252,7 +255,7 @@ class RastattContext:
     HasPersonAgentRepo<PersonAgent, PersonAgent>,
     HasSharingProviderAgentRepo<SharingProviderAgent, SharingProviderAgent>,
     HasDrtProviderAgentRepo<DrtProviderAgent, DrtProviderAgent>,
-    HasMutableImpedance,
+    HasMutableArrayBackedImpedance,
     HasModes, // TODO discuss whether modes are context or config
     HasMutableDestinationChoiceModel,
     HasAttractivenessModel,
@@ -264,7 +267,7 @@ class RastattContext:
     HasReplanningStrategy {
     override val scenarioName: String = "regression test short term scenario"
     override val modes: CodePlan<Mode> = TutorialMode
-    override lateinit var impedance: Impedance
+    override lateinit var impedance: ArrayBackedImpedance
     override var modeAvailability: ModeAvailabilityModel = ModeAvailabilityByRule(
         modes.values().associateWith {
             PlaceholderProvider(it)
