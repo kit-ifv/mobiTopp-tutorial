@@ -1,7 +1,11 @@
 package destination
 
-import edu.kit.ifv.domain.simulation.behavior.carsPerAdult
-import edu.kit.ifv.domain.simulation.behavior.isIntrazonal
+import edu.kit.ifv.domain.shared.behavior.AttractivenessModel
+import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.carsPerAdult
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.isIntrazonal
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import util.destinationChoiceStructure
 import util.openMultinomialLogit
 import util.times
@@ -107,8 +111,12 @@ data class DestinationChoiceParameters(
     val max_attractivity: Double = 1000000.0,
 )
 
-
-val tutorialDestinationChoiceModel = destinationChoiceStructure<DestinationChoiceParameters> { sit -> (
+context(
+    impedance: Impedance,
+    attractivenessModel: AttractivenessModel,
+    modeAvailabilityModel: ModeAvailabilityModel,
+    modeChoiceCharacteristics: ModeChoiceCharacteristics)
+fun tutorialDestinationChoiceModel() = destinationChoiceStructure<DestinationChoiceParameters> { sit -> (
 
         (
                 b_attr
@@ -118,17 +126,17 @@ val tutorialDestinationChoiceModel = destinationChoiceStructure<DestinationChoic
                         + shift_educ_on_logsum_attr * (sit.employmentIsSomeEducationType)
                         + shift_home_on_logsum_attr * (sit.isEmploymentHomekeeper || sit.isEmploymentUnemployed)
                         + shift_zk_on_logsum_attr * sit.hasCommuterTicket
-                        + shift_carav_on_logsum_attr * (sit.carsPerAdult >= 1.0)
+                        + shift_carav_on_logsum_attr * (context(sit) { carsPerAdult } >= 1.0)
                         + shift_high_inc_on_logsum_attr * (sit.householdEconomicStatus in 4..5)
                         //+ shift_uml_on_logsum_attr * IS_UMLAND
                         + shift_b_0_1_on_logsum_attr * (sit.travelDistanceKm in 0.0..1.0)
                         + shift_b_1_2_on_logsum_attr * (sit.travelDistanceKm in 1.0 .. 2.0)
-                        + shift_intrazonal_on_attr * sit.isIntrazonal
+                        + shift_intrazonal_on_attr * context(sit, sit.choice) { isIntrazonal }
                 ) * ln(min(max_attractivity, sit.attractivity)) +
 
                 b_0_1 * (sit.travelDistanceKm in 0.0..1.0) +
                 b_1_2 * (sit.travelDistanceKm in 1.0..2.0) +
-                b_intrazonal * sit.isIntrazonal +
+                b_intrazonal * context(sit, sit.choice) { isIntrazonal } +
 
                 ( // b_logsum_pt
                         b_logsum_pt
@@ -139,7 +147,7 @@ val tutorialDestinationChoiceModel = destinationChoiceStructure<DestinationChoic
                                 + shift_educ_on_logsum_pt * (sit.employmentIsSomeEducationType)
                                 + shift_home_on_logsum_pt * (sit.isEmploymentHomekeeper || sit.isEmploymentUnemployed)
                                 + shift_zk_on_logsum_pt * sit.hasCommuterTicket
-                                + shift_carav_on_logsum_pt * (sit.carsPerAdult >= 1.0)
+                                + shift_carav_on_logsum_pt * (context(sit) { carsPerAdult } >= 1.0)
                                 + shift_nocar_on_logsum_pt * (sit.householdCars == 0)
                                 + shift_high_inc_on_logsum_pt * (sit.householdEconomicStatus in 4..5)
                         //+ shift_uml_on_logsum_pt * IS_UMLAND
@@ -154,11 +162,11 @@ val tutorialDestinationChoiceModel = destinationChoiceStructure<DestinationChoic
                                 + shift_educ_on_logsum_drive * (sit.employmentIsSomeEducationType)
                                 + shift_home_on_logsum_drive * (sit.isEmploymentHomekeeper || sit.isEmploymentUnemployed)
                                 + shift_zk_on_logsum_drive * sit.hasCommuterTicket
-                                + shift_carav_on_logsum_drive * (sit.carsPerAdult >= 1.0)
+                                + shift_carav_on_logsum_drive * (context(sit) { carsPerAdult } >= 1.0)
                                 + shift_nocar_on_logsum_drive * (sit.householdCars == 0)
                                 + shift_high_inc_on_logsum_drive * (sit.householdEconomicStatus in 4..5)
                         // + shift_uml_on_logsum_drive * IS_UMLAND
-                        ) * sit.logsumDestDrive +
+                        ) *  sit.logsumDestDrive +
 
 
                 ( // b_logsum_pt_fix
@@ -170,7 +178,7 @@ val tutorialDestinationChoiceModel = destinationChoiceStructure<DestinationChoic
                                 + shift_educ_on_logsum_pt_fix * sit.employmentIsSomeEducationType
                                 + shift_home_on_logsum_pt_fix * (sit.isEmploymentHomekeeper || sit.isEmploymentUnemployed)
                                 + shift_zk_on_logsum_pt_fix * sit.hasCommuterTicket
-                                + shift_carav_on_logsum_pt_fix * (sit.carsPerAdult >= 1.0)
+                                + shift_carav_on_logsum_pt_fix * (context(sit) { carsPerAdult } >= 1.0)
                                 + shift_nocar_on_logsum_pt_fix * (sit.householdCars == 0)
                                 + shift_high_inc_on_logsum_pt_fix * (sit.householdEconomicStatus in 4..5)
                         //+ shift_uml_on_logsum_pt_fix * IS_UMLAND
@@ -185,11 +193,12 @@ val tutorialDestinationChoiceModel = destinationChoiceStructure<DestinationChoic
                                 + shift_educ_on_logsum_drive_fix * sit.employmentIsSomeEducationType
                                 + shift_home_on_logsum_drive_fix * (sit.isEmploymentHomekeeper || sit.isEmploymentUnemployed)
                                 + shift_zk_on_logsum_drive_fix * sit.hasCommuterTicket
-                                + shift_carav_on_logsum_drive_fix * (sit.carsPerAdult >= 1)
+                                + shift_carav_on_logsum_drive_fix * (context(sit) { carsPerAdult } >= 1)
                                 + shift_nocar_on_logsum_drive_fix * (sit.householdCars == 0)
                                 + shift_high_inc_on_logsum_drive_fix * (sit.householdEconomicStatus in 4..5)
                         //+ shift_uml_on_logsum_drive_fix * IS_UMLAND
-                        ) * sit.logsumFixDestPt
+                        ) * sit.logsumFixDestDrive // TODO jelle, i think this was an error using logsumfixdestpt,
+        // please check
         // LOGSUM_FIX_DEST_DRIVE
 
 

@@ -1,7 +1,10 @@
 package destination
 
 
-import edu.kit.ifv.domain.simulation.behavior.DestinationAlternative
+import edu.kit.ifv.domain.shared.location.Impedance
+import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationAlternative
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import util.bike
 import util.bikesharing
 import util.car
@@ -12,7 +15,7 @@ import util.times
 import kotlin.math.exp
 import kotlin.math.ln
 
-
+context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
 val DestinationAlternative.logsumDest: Double get() =
     ln(
         exp(utilityPed) +
@@ -35,7 +38,7 @@ val DestinationAlternative.logsumDest: Double get() =
         -50.0
     }
 
-
+context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
 val DestinationAlternative.logsumDestPt: Double get() =
     ln(
         exp(utilityPed) +
@@ -48,7 +51,7 @@ val DestinationAlternative.logsumDestPt: Double get() =
         -50.0
     }
 
-
+context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
 val DestinationAlternative.logsumDestDrive: Double get() =
     ln(
         isCarAvailable * exp(utilityCarDriver)
@@ -59,12 +62,13 @@ val DestinationAlternative.logsumDestDrive: Double get() =
         -50.0
     }
 
+context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
 val DestinationAlternative.logsumDestRide: Double get() =
     ln(
         exp(utilityCarPassenger) //kein TAXI, kein RIDEPOOLING
     ) + if (isPassengerAvailable) 0.0 else -50.0
 
-
+context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
 val DestinationAlternative.logsumFixDest: Double get() =
     ln(
         exp(utilityFixPed) +
@@ -88,7 +92,7 @@ val DestinationAlternative.logsumFixDest: Double get() =
         -50.0
     }
 
-
+context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
 val DestinationAlternative.logsumFixDestPt: Double get() =
     ln(
         exp(utilityFixPed) +
@@ -101,6 +105,8 @@ val DestinationAlternative.logsumFixDestPt: Double get() =
         -50.0
     }
 
+
+context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
 val DestinationAlternative.logsumFixDestDrive: Double get() =
     ln(
         isCarAvailable * exp(utilityFixCarDriver)
@@ -111,7 +117,7 @@ val DestinationAlternative.logsumFixDestDrive: Double get() =
         -50.0
     }
 
-
+context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
 val  DestinationAlternative.logsumFixDestRide: Double get() =
     ln(
         exp(utilityFixCarPassenger)
@@ -136,55 +142,51 @@ private val b_tt_bike = -0.0983 - 0.03
 private val b_tt_cs = -0.0005 - 0.05
 private val b_cost = -0.1283
 
-
+context(impedance: Impedance)
 private val DestinationAlternative.utilityPed: Double get() =
     2.0 + asc_ped + b_tt_ped * travelTimeMinutes(pedestrian)
 
+context(impedance: Impedance)
 private val DestinationAlternative.utilityBike: Double get() =
     2.0 + asc_bike + b_tt_bike * travelTimeMinutes(bike)
 
+context(impedance: Impedance)
 private val DestinationAlternative.utilityPut: Double get() =
     2 + asc_put + b_tt_put * travelTimeMinutes(publictransport) + b_cost * travelCostEuro(publictransport)
 
+context(impedance: Impedance)
 private val DestinationAlternative.utilityCarPassenger: Double get() =
     2.0 + asc_car_p + b_tt_car_p * (3.0 + travelTimeMinutes(passenger))
 
-
+context(impedance: Impedance)
 private val DestinationAlternative.utilityCarDriver: Double get() =
     2 + asc_car_d + b_tt_car_d * travelTimeMinutes(car) + b_cost * travelCostEuro(car)
 
-//private val DestinationAlternative.utilityCarSharingFree: Double get() =
-//    2 + asc_cs_ff + b_tt_cs * (3.0 + travelTimeMinutes(csff)) + b_cost * travelCostEuro(csff)
-
-//private val DestinationAlternative.utilityCarSharingStation: Double get() =
-//    2 + asc_cs_sb + b_tt_cs * (3.0 + travelTimeMinutes(cssb)) + b_cost * travelCostEuro(cssb)
-
+context(impedance: Impedance)
 private val DestinationAlternative.utilityBikeSharing: Double get() =
     2 + asc_bs + b_tt_bike * travelTimeMinutes(bikesharing) + b_cost * travelCostEuro(bikesharing)
 
-
-
+context(impedance: Impedance)
 private val DestinationAlternative.utilityFixPed: Double get() =
     2.0 + asc_ped + b_tt_ped * travelTimeMinutesToFixed(pedestrian)
 
+context(impedance: Impedance)
 private val DestinationAlternative.utilityFixBike: Double get() =
     2.0 + asc_bike + b_tt_bike * travelTimeMinutesToFixed(bike)
 
+context(impedance: Impedance)
 private val DestinationAlternative.utilityFixPut: Double get() =
     2.0 + asc_put + b_tt_put * travelTimeMinutesToFixed(publictransport) + b_cost * travelCostEuroToFixed(publictransport)
 
+context(impedance: Impedance)
 private val DestinationAlternative.utilityFixCarPassenger: Double get() =
     2.0 + asc_car_p + b_tt_car_p * (3.0 + travelTimeMinutesToFixed(car))
 
+context(impedance: Impedance)
 private val DestinationAlternative.utilityFixCarDriver: Double get() =
     2.0 + asc_car_d + b_tt_car_d * travelTimeMinutesToFixed(car) + b_cost * travelCostEuroToFixed(car)
 
-//private val DestinationAlternative.utilityFixCarSharingFree: Double get() =
-//    2.0 + asc_cs_ff + b_tt_cs * (3.0 + travelTimeMinutesToFixed(csff)) + b_cost * travelCostEuroToFixed(csff)
-
-//private val DestinationAlternative.utilityFixCarSharingStation: Double get() =
-//    2.0 + asc_cs_sb + b_tt_cs * (3.0 + travelTimeMinutesToFixed(cssb)) + b_cost * travelCostEuroToFixed(cssb)
-
+context(impedance: Impedance)
 private val DestinationAlternative.utilityFixBikeSharing: Double get() =
     2 + asc_bs + b_tt_bike * travelTimeMinutesToFixed(bikesharing) + b_cost * travelCostEuroToFixed(bikesharing)
 

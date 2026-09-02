@@ -9,16 +9,17 @@ import edu.kit.ifv.domain.shared.enums.ActivityType
 import edu.kit.ifv.domain.shared.enums.household.EconomicStatus
 import edu.kit.ifv.domain.shared.enums.person.Employment
 import edu.kit.ifv.domain.shared.enums.person.Sex
+import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.StandardLocation.Companion.LOCATIONUNKNOWN
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
-import edu.kit.ifv.domain.simulation.behavior.DestinationAlternative
-import edu.kit.ifv.domain.simulation.behavior.minutes
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationAlternative
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.minutes
+import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.data.person.isAdult
 import edu.kit.ifv.utils.units.AbsoluteTime
 import util.Mode
-import util.ModeChoiceCharacteristics
 import util.TutorialActivity
 import util.bike
 import util.bikesharing
@@ -47,9 +48,7 @@ val ModeChoiceCharacteristics.isWorkday: Boolean get() = time.weekDay !in WEEKEN
 private val attractiveness: AttractivenessModel by lazy {
     AttractivenessFromCsv(
         Path("data/zone-repository/attractivities.csv"),
-        work = TutorialActivity.WORK,
-        privateVisit = TutorialActivity.PRIVATE_VISIT,
-        activityTypes = TutorialActivity.entries.toSet(),
+        activityTypes = (TutorialActivity.entries + TutorialActivity.WORK + TutorialActivity.PRIVATE_VISIT).toSet(),
     )
 }
 
@@ -114,8 +113,14 @@ val ModeChoiceCharacteristics.adultsInHousehold: Int get() = person.household.me
 
 
 fun ModeChoiceCharacteristics.isAgeIn(from: Int, to: Int) = (age in from..to)
+
+context(impedance: Impedance)
 fun ModeChoiceCharacteristics.travelTimeMinutes(mode: Mode): Double = impedance.duration(origin, destination, mode, time).minutes
+
+context(impedance: Impedance)
 fun ModeChoiceCharacteristics.travelCostEuro(mode: Mode): Double = impedance.cost(origin, destination, mode, time).euros
+
+context(impedance: Impedance)
 fun ModeChoiceCharacteristics.travelDistanceKm(mode: Mode): Double = impedance.distance(origin, destination, mode).inKilometers
 
 private val ModeChoiceCharacteristics.nextFixedActivity
@@ -127,9 +132,13 @@ private val ModeChoiceCharacteristics.nextFixedDestination: StandardLocation
 private val ModeChoiceCharacteristics.nextFixedActivityEnd: AbsoluteTime
     get() = nextFixedActivity?.endTime ?: time.plus(7.hours)
 
+
+context(impedance: Impedance)
 fun ModeChoiceCharacteristics.travelTimeMinutesToFixed(mode: Mode): Double =
     impedance.duration(destination, nextFixedDestination, mode, nextFixedActivityEnd).minutes
 
+
+context(impedance: Impedance)
 fun ModeChoiceCharacteristics.travelCostEuroToFixed(mode: Mode): Double =
     impedance.cost(destination, nextFixedDestination, mode, nextFixedActivityEnd).euros
 
@@ -168,6 +177,7 @@ private val fixedPurposes = listOf(
     TutorialActivity.EDUCATION_SECONDARY,
     TutorialActivity.EDUCATION_TERTIARY
 )
+
 val DestinationAlternative.isFixedLocationPurpose: Boolean get() = (purpose in fixedPurposes)
 
 private val shoppingPurposes = listOf(
