@@ -496,6 +496,18 @@ fun main(args: Array<String>) {
             }
         }
 
+        addPlot {
+            forData {
+                households()
+            }.count {
+                it.economicStatus
+            }.sortX {
+                Ordering.Ascending()
+            }.asHistogram {
+                name = "economic status distribution"
+            }
+        }
+
 
         val distBins = listOf(
             0.0 to 0.5,
