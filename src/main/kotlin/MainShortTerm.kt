@@ -215,7 +215,7 @@ class RastattConfig :
 
     override val attractivenessFile: Path = sourceFiles.attractivitiesCSV
 
-    override val distanceUnit: DistanceUnit = DistanceUnit.METERS
+    override val distanceUnit: DistanceUnit = DistanceUnit.KILOMETERS
     override val durationUnit: DurationUnit = DurationUnit.MINUTES
     override val currencyUnit: CurrencyUnit = CurrencyUnit.EUROS
 
@@ -513,6 +513,8 @@ fun main(args: Array<String>) {
                 personLegs()
             }.count {
                 it.distance(impedance).kilometers.mapToBins(distBins)
+            }.sortX {
+                Ordering.Ascending()
             }.normalizeByGroup().asHistogram {
                 name = "distance distribution"
                 xAxisLabel = "distance [km]"
