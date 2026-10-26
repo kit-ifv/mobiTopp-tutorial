@@ -81,6 +81,7 @@ import edu.kit.ifv.core.modelsteps.Simulation
 import edu.kit.ifv.core.modelsteps.initReport
 import edu.kit.ifv.core.modelsteps.resources.MapRepository
 import edu.kit.ifv.core.modelsteps.resources.MutableRepository
+import edu.kit.ifv.core.results.plots.KIT_GREEN
 import edu.kit.ifv.core.results.plots.asHistogram
 import edu.kit.ifv.core.results.plots.asLinePlot
 import edu.kit.ifv.core.results.plots.data.Ordering
@@ -115,6 +116,7 @@ import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
 import edu.kit.ifv.domain.simulation.behavior.availability.rules.ModeAvailabilityByRule
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristicsImpl
+import edu.kit.ifv.domain.simulation.behavior.destinationchoice.kilometers
 import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristicsImpl
 import edu.kit.ifv.domain.simulation.data.car.MutablePrivateCar
@@ -462,6 +464,21 @@ fun main(args: Array<String>) {
             forData {
                 personLegs()
             }.count {
+                it.leg.startTime.roundToMultipleOf(5.minutes)
+            }.sortX {
+                Ordering.Ascending()
+            }.asLinePlot {
+                name = "timeline"
+                xAxisLabel = "time"
+                yAxisLabel = "trip count"
+                coloring = { KIT_GREEN }
+            }
+        }
+
+        addPlot {
+            forData {
+                personLegs()
+            }.count {
                 it.leg.transportType
             }.normalizeByGroup().asHistogram {
                 name = "modal split"
@@ -489,16 +506,16 @@ fun main(args: Array<String>) {
             10.0 to 20.0,
             20.0 to 50.0,
             50.0 to 100.0
-        ).map { it.first.kilometers to it.second.kilometers }.asBins(appendOpenBin = true)
+        ).map { it.first.kilometers.kilometers to it.second.kilometers.kilometers }.asBins(appendOpenBin = true)
 
         addPlot {
             forData {
                 personLegs()
             }.count {
-                it.distance(impedance).mapToBins(distBins)
+                it.distance(impedance).kilometers.mapToBins(distBins)
             }.normalizeByGroup().asHistogram {
                 name = "distance distribution"
-                xAxisLabel = "mode"
+                xAxisLabel = "distance [km]"
             }
         }
 
