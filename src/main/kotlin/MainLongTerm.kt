@@ -7,7 +7,9 @@ import commuterticket.commuterTicketChoiceModel
 import edu.kit.ifv.domain.jackson.writeCsv
 import edu.kit.ifv.domain.shared.datastructure.matrix.StandardMatrix
 import edu.kit.ifv.domain.shared.datastructure.matrix.optimized.DistanceMatrix
+import edu.kit.ifv.domain.shared.enums.areatype.RegioStaR17
 import edu.kit.ifv.domain.shared.location.StandardLocation
+import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.synthesis.AssignmentStrategy
 import edu.kit.ifv.domain.synthesis.AttractivenessModelParser
 import edu.kit.ifv.domain.synthesis.HouseholdAssignmentStep
@@ -37,12 +39,14 @@ import edu.kit.ifv.populationsynthesis.algorithms.hierarchic.distribution.Hierar
 import edu.kit.ifv.populationsynthesis.algorithms.hierarchic.distribution.HierarchicDistributionConfig
 import edu.kit.ifv.populationsynthesis.evaluation.Verification
 import edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType
+import edu.kit.ifv.populationsynthesis.hierarchy.MutableHierarchyGraphFactory
 import edu.kit.ifv.units.meters
 import longterm.RastattHouseholdAttributes
 import longterm.RastattPersonAttributes
 import longterm.RastattZone
 import longterm.activitygeneration.ChildlessActiToppNGGenerator
 import longterm.rastattPopulationParser
+import longterm.rules.RastattEconomicStatusFactory
 import longterm.rules.RastattRuleProvider
 import longterm.rules.RastattSynthesisZoneTargets
 import util.TutorialActivity
@@ -69,7 +73,16 @@ fun main() {
     val config = RastattLongTermConfig()
     val ruleProvider = RastattRuleProvider(
         synthesisZoneTargets = RastattSynthesisZoneTargets.fromCsv()
-    ).createRuleProvider().flatHierarchy()
+    ).createRuleProvider()
+
+    val hierarchy = MutableHierarchyGraphFactory.asForest {
+        ruleProvider.getAllRules().keys.forEach { zoneId ->
+            addRelationship(zoneId, ZoneId(-1L))
+        }
+    }
+
+    ruleProvider.addRules(ZoneId(-1L), RastattEconomicStatusFactory.buildRuleSet(expectedAmountOfElements = 46283))
+    val ruleProviderWithHierarchy = ruleProvider.withHierarchy(hierarchy)
 
     val zones: List<RastattZone> = RastattZone.fromCsv()
     val zoneMapping = zones.associateBy { it.zoneId }
@@ -87,7 +100,9 @@ fun main() {
         zones = zones
     ) {
         outputDirectory = config.outputDirectory
-
+        surveyPopulation.forEach {
+            it.attributes.economicStatus = OECDAssigner.default().determineStatus(it)
+        }
 
     }
 
@@ -103,7 +118,7 @@ fun main() {
 
         synthesize(zoneMapping::getValue) {
             val hierarchicDistribution = HierarchicDistribution(
-                ruleProvider = ruleProvider,
+                ruleProvider = ruleProviderWithHierarchy,
                 seedHouseholds = surveyHouseholds,
                 config = HierarchicDistributionConfig()
             )
@@ -114,7 +129,7 @@ fun main() {
             }
         }
         if(config.logIpuResults) {
-            val verificationOutput = Verification.verify(ruleProvider, householdsByZone.mapKeys { it.key.zoneId })
+            val verificationOutput = Verification.verify(ruleProviderWithHierarchy, householdsByZone.mapKeys { it.key.zoneId })
             writeCsv(outputDirectory.resolve(config.ipuRelativePath).createParentDirectories(), verificationOutput)
         }
 
@@ -125,7 +140,9 @@ fun main() {
         assignEconomicStatus {
             OECDAssigner.default()
         }
-
+        householdsByZone.entries.forEach { (zone, households) ->
+            households.forEach { it.attributes.regioStar = (zone.attributes.regionType as RegioStaR17).toRegioStaR7() }
+        }
         assignAmountOfCars {
             AssignmentStrategy.viaChoiceModel(
                 model = carChoiceModel,

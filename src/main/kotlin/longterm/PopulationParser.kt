@@ -47,6 +47,7 @@ fun rastattPopulationParser(
                 income = data.householdIncomeEuros,
                 type = data.householdType,
                 amountOfCars = data.amountOfCars,
+                householdIncomeClass = data.householdIncomeClass,
             )
         },
         personDataExtractor = {
@@ -63,4 +64,12 @@ fun rastattPopulationParser(
             )
         }
     )
+
+
+//fun rastatt2(
+//    input: Collection<RastattSurveyAttributes> = standardCSVParse(
+//        input = Path("src/main/resources/SurveyPopulation.csv").inputStream(),
+//        separator = ';'
+//    )
+//):         GenerateFromFlatInput<RastattSurveyAttributes, RastattHouseholdAttributes, RastattPersonAttributes> =
 private var personCounter: Long = 0

@@ -3,6 +3,7 @@ package longterm.rules
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.synthesis.behavior.ISurveyHousehold
 import edu.kit.ifv.populationsynthesis.rules.provider.MapRuleProvider
+import longterm.RastattHouseholdAttributes
 
 /**
  * Builds a [MapRuleProvider] with all synthesis rules for the Rastatt example data.
@@ -23,7 +24,8 @@ import edu.kit.ifv.populationsynthesis.rules.provider.MapRuleProvider
  * @property synthesisZoneTargets
  * The per-zone target collection to be converted into synthesis rules.
  */
-class RastattRuleProvider(private val synthesisZoneTargets: Collection<RastattSynthesisZoneTargets> = RastattSynthesisZoneTargets.fromCsv()) {
+class RastattRuleProvider constructor(private val synthesisZoneTargets: Collection<RastattSynthesisZoneTargets> =
+    RastattSynthesisZoneTargets.fromCsv()) {
     /**
      * Creates a [MapRuleProvider] keyed by [ZoneId] containing all rules for
      * the configured [synthesisZoneTargets].
@@ -34,7 +36,7 @@ class RastattRuleProvider(private val synthesisZoneTargets: Collection<RastattSy
      *   explicit size limit of 4 (size ≥ 5 is handled via the implicit "≥ N" rule),
      * - adds person-level age × sex rules from [RastattAgeSexFactory].
      */
-    fun createRuleProvider() = MapRuleProvider<ZoneId, ISurveyHousehold<*, *>>().apply {
+    fun createRuleProvider() = MapRuleProvider<ZoneId, ISurveyHousehold<RastattHouseholdAttributes, *>>().apply {
         synthesisZoneTargets.forEach {
             addRules(it.zoneId, RastattHouseholdTypeFactory.buildRuleSet(it))
             addRules(it.zoneId, RastattHouseholdSizeFactory.buildRuleSet(lastExplicitSize = 4, it))

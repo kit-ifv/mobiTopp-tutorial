@@ -61,6 +61,8 @@ data class RastattSurveyAttributes(
     val amountOfCars: Int,
     @field:JsonProperty("hhincome")
     val householdIncome: Int,
+    @field:JsonProperty("hhincome_class")
+    val householdIncomeClass: Int,
     @field:JsonProperty("type")
     val householdTypeCode: Int,
 

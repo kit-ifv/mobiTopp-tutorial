@@ -1,8 +1,16 @@
 package longterm.rules
 
+import edu.kit.ifv.domain.shared.enums.household.EconomicStatus
+import edu.kit.ifv.domain.synthesis.behavior.ISurveyHousehold
 import edu.kit.ifv.domain.synthesis.rules.HouseholdSizeFactory
 import edu.kit.ifv.domain.synthesis.rules.HouseholdTypeFactory
 import edu.kit.ifv.domain.synthesis.rules.PersonAgeSexFactory
+import edu.kit.ifv.populationsynthesis.rules.Rule
+import edu.kit.ifv.populationsynthesis.rules.covered.CoverageGroup
+import edu.kit.ifv.populationsynthesis.rules.covered.FullCoverageGroup
+import edu.kit.ifv.populationsynthesis.rules.measurement.BooleanMeasurementDefinition
+import edu.kit.ifv.populationsynthesis.rules.toRuleSet
+import longterm.RastattHouseholdAttributes
 
 
 /**
@@ -61,3 +69,47 @@ object RastattAgeSexFactory : PersonAgeSexFactory<RastattSynthesisZoneTargets>(
         it.getAgeSexRuleDefinitions()
     }
 )
+
+object RastattEconomicStatusFactory {
+    fun buildRuleSet(input: NewTargets = NewTargets.STANDARD, expectedAmountOfElements: Int):
+            CoverageGroup<ISurveyHousehold<RastattHouseholdAttributes, *>> {
+
+        val ruleset = input.map.entries.map { (k, v) ->
+            val measure = EcoMeasurement(k)
+            Rule(
+                target = expectedAmountOfElements * v,
+                logic = measure.createNamedMeasurement(),
+            )
+        }.toRuleSet()
+
+        return FullCoverageGroup(ruleset)
+    }
+}
+
+class EcoMeasurement(private val economicStatus: EconomicStatus) :
+    BooleanMeasurementDefinition<ISurveyHousehold<RastattHouseholdAttributes,
+            *>>() {
+    override fun evaluation(element: ISurveyHousehold<RastattHouseholdAttributes, *>): Boolean {
+        return element.attributes.economicStatus == economicStatus
+    }
+
+    override fun generateDescription(): String {
+        return "Economic Status == ${economicStatus.code}"
+    }
+}
+
+data class NewTargets(
+    val map: Map<EconomicStatus, Double>,
+) {
+    companion object {
+        val STANDARD = NewTargets(
+            mapOf(
+                EconomicStatus.VERY_LOW to 10.0 / 100,
+                EconomicStatus.LOW to 11.0 / 100,
+                EconomicStatus.MIDDLE to 31.0 / 100,
+                EconomicStatus.HIGH to 35.0 / 100,
+                EconomicStatus.VERY_HIGH to 13.0 / 100,
+            )
+        )
+    }
+}

@@ -44,7 +44,7 @@ class RastattZone(
     }
 }
 
-data class RastattZoneAttributes(
+data class RastattZoneAttributes constructor(
 
     override val regionType: RegionType,
     override val centroid: Point
