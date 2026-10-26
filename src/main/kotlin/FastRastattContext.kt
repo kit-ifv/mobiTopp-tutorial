@@ -77,7 +77,7 @@ class FastRastattContext:
     HasPersonRepo<MutablePerson, Person>,
     HasSharingProviderRepo<MutableSharingProvider, SharingProvider>,
     HasDrtProviderRepo<MutableDrtProviderData, DrtProvider>,
-    Cloneable<RastattContext>,
+    Cloneable<FastRastattContext>,
     HasMutableAttractivenessModel,
     HasPersonAgentRepo<PersonAgent, PersonAgent>,
     HasSharingProviderAgentRepo<SharingProviderAgent, SharingProviderAgent>,
@@ -138,7 +138,7 @@ class FastRastattContext:
     override val mutableSharingProviderAgentRepository: MutableRepository<SharingProviderAgent, SharingProviderId> = MapRepository("SharingProviderAgents")
     override val mutableDrtProviderAgentRepository: MutableRepository<DrtProviderAgent, DrtProviderId> = MapRepository("DrtProviderAgents")
 
-    override fun clone(): RastattContext = RastattContext()
+    override fun clone(): FastRastattContext = FastRastattContext()
 
     override var currentStep: String = ""
 }
