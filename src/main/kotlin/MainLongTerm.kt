@@ -5,7 +5,8 @@ import cars.carChoiceModel
 import commuterticket.TicketCharacteristics
 import commuterticket.commuterTicketChoiceModel
 import edu.kit.ifv.domain.jackson.writeCsv
-import edu.kit.ifv.domain.shared.enums.areatype.ZoneRegionType
+import edu.kit.ifv.domain.shared.datastructure.matrix.StandardMatrix
+import edu.kit.ifv.domain.shared.datastructure.matrix.optimized.DistanceMatrix
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.synthesis.AssignmentStrategy
 import edu.kit.ifv.domain.synthesis.AttractivenessModelParser
@@ -20,11 +21,11 @@ import edu.kit.ifv.domain.synthesis.behavior.activitygeneration.ActiToppNGGenera
 import edu.kit.ifv.domain.synthesis.behavior.cars.generation.SamplingCarGeneration
 import edu.kit.ifv.domain.synthesis.behavior.cars.ownership.UnfilteredSeniority
 import edu.kit.ifv.domain.synthesis.behavior.economicstatus.OECDAssigner
-import edu.kit.ifv.domain.synthesis.behavior.fixeddestinations.UseClosestLocation
-import edu.kit.ifv.domain.synthesis.behavior.fixeddestinations.bandwidth.BandwidthLocator
+import edu.kit.ifv.domain.synthesis.behavior.fixeddestinations.MetricBasedClosestLocation
+import edu.kit.ifv.domain.synthesis.behavior.fixeddestinations.bandwidth.MetricBandwidthLocator
 import edu.kit.ifv.domain.synthesis.behavior.fixeddestinations.communitybased.CommunityBasedGroupLocator
 import edu.kit.ifv.domain.synthesis.behavior.fixeddestinations.communitybased.CommuterDemandsMatrix
-import edu.kit.ifv.domain.synthesis.behavior.fixeddestinations.communitybased.CommuterDistance
+import edu.kit.ifv.domain.synthesis.behavior.fixeddestinations.communitybased.MetricCommuterDistance
 import edu.kit.ifv.domain.synthesis.behavior.fixeddestinations.primarySchool
 import edu.kit.ifv.domain.synthesis.behavior.fixeddestinations.secondarySchool
 import edu.kit.ifv.domain.synthesis.behavior.fixeddestinations.work
@@ -35,6 +36,7 @@ import edu.kit.ifv.domain.synthesis.withConverter
 import edu.kit.ifv.populationsynthesis.algorithms.hierarchic.distribution.HierarchicDistribution
 import edu.kit.ifv.populationsynthesis.algorithms.hierarchic.distribution.HierarchicDistributionConfig
 import edu.kit.ifv.populationsynthesis.evaluation.Verification
+import edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType
 import edu.kit.ifv.units.meters
 import longterm.RastattHouseholdAttributes
 import longterm.RastattPersonAttributes
@@ -74,6 +76,9 @@ fun main() {
 
     val primarySchools: List<StandardLocation> = zones.map { it.centroidLocation }
     val works: List<StandardLocation> = zones.map { it.centroidLocation }
+
+    // Car travel distances (in meters) between zones
+    val carDistance = DistanceMatrix(StandardMatrix.parseAsVisumMatrix(config.carDistanceMatrixPath)) { it.meters }
 
 
     val populationSynthesis = PopulationSynthesis.configure(
@@ -154,18 +159,23 @@ fun main() {
                         mappingFile = config.zoneCommunityMappingPath,
                         commuterFile = config.commuterFilePath
                     ),
-                    strategy = CommuterDistance(),
+                    strategy = MetricCommuterDistance(carDistance),
                     potentialLocations = works
                 )
             }
             primarySchool {
                 activityType = TutorialActivity.EDUCATION_PRIMARY
-                assignmentStrategy = UseClosestLocation(primarySchools)
+                assignmentStrategy = MetricBasedClosestLocation(carDistance, primarySchools)
             }
             secondarySchool {
                 activityType = TutorialActivity.EDUCATION_SECONDARY
-                assignmentStrategy =
-                    BandwidthLocator(primarySchools, attractivenessModel, TutorialActivity.EDUCATION_SECONDARY)
+                assignmentStrategy = MetricBandwidthLocator(
+                    potentialLocations = primarySchools,
+                    distances = carDistance,
+                    attractivenessModel = attractivenessModel,
+                    activityType = TutorialActivity.EDUCATION_SECONDARY,
+                    random = Random(42),
+                ) { it.attributes.distanceEducation }
             }
 
         }
@@ -175,7 +185,7 @@ fun main() {
         )
         assignActivities {
             ActiToppNGGenerator(tutorialChoiceModelPurposes) {
-                ZoneRegionType.DEFAULT
+                AreaType.UNKNOWN
             }
         }
 

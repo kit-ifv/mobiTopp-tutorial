@@ -11,9 +11,9 @@ version = "1.0-SNAPSHOT"
 repositories {
     maven("https://packages.jetbrains.team/maven/p/kds/kotlin-ds-maven")
     maven("https://repo.osgeo.org/repository/release")
-    flatDir {
-        dirs("libs")
-    }
+//    flatDir {
+//        dirs("libs")
+//    }
     mavenCentral()
     mavenLocal()
 }
@@ -21,14 +21,14 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
 
-    implementation("edu.kit.ifv.mobitopp:mobitopp-reengineering:1.1.0")
-    ksp("edu.kit.ifv.mobitopp:processor:1.1.0") // <-- this is required
-    implementation("edu.kit.ifv.mobitopp:processor:1.1.0") // <-- this is required
-    ksp("edu.kit.ifv.mobitopp:annotations:1.1.0") // <-- this is required
+    implementation("edu.kit.ifv.mobitopp:mobitopp-reengineering:1.2.0")
+    ksp("edu.kit.ifv.mobitopp:processor:1.2.0") // <-- this is required
+    implementation("edu.kit.ifv.mobitopp:processor:1.2.0") // <-- this is required
+    ksp("edu.kit.ifv.mobitopp:annotations:1.2.0") // <-- this is required
 
     implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.3")
     implementation("edu.kit.ifv.mobitopp:discrete-choice:1.2.2")
-    implementation("edu.kit.ifv.mobitopp:actitoppNG:1.0.0")
+    implementation("edu.kit.ifv.mobitopp:actitoppNG:1.1.2")
 
     implementation("org.apache.commons:commons-compress:1.28.0")
     implementation("org.jgrapht:jgrapht-core:1.5.2")

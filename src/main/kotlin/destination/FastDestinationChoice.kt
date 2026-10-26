@@ -8,8 +8,6 @@ import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.ZoneId
 import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.*
-import edu.kit.ifv.mobitopp.discretechoice.models.BatchUtilityChoiceModel
-import edu.kit.ifv.mobitopp.discretechoice.models.CharacteristicMapperChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.units.Distance
 import util.D
@@ -66,7 +64,8 @@ class WrappedDestinationChoice(
     val delegatedChoiceModel: FixedChoiceModel<StandardLocation, AttributesAndArrays> by lazy { FastDestinationChoice(
         parameters = DestinationChoiceParameters(),
         name = "MyIndexBasedSelectionModel",
-        choices = choicesSpawner(),
+        // Share the same set, so that the utility array indices match indexMap and contiguousArrays
+        choices = choices,
     )}
 
     override val delegateChoiceModel: FixedChoiceModel<StandardLocation, AttributesAndArrays>

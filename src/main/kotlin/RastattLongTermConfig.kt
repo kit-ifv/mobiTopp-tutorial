@@ -11,5 +11,6 @@ data class RastattLongTermConfig(
     val ipuRelativePath: Path = Path("IPULog.csv"),
     val zoneCommunityMappingPath: Path = Path("src/main/resources/zone-to-community.csv"),
     val commuterFilePath: Path = Path("src/main/resources/commuters-rastatt.csv"),
+    val carDistanceMatrixPath: Path = Path("data/matrix/other/CAR_DIS.mtx.bz2"),
     val modernizedOutputDirectory: Path = Path("results/long-term-modernized/"),
 )
