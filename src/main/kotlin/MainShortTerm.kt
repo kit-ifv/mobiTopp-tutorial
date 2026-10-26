@@ -2,6 +2,7 @@
 
 import destination.WrappedDestinationChoice
 import destination.tutorialDestinationChoiceModel
+import destination.tutorialDestinationChoiceModelWith
 import edu.kit.ifv.application.config.subconfigs.BaseCSVFiles
 import edu.kit.ifv.application.config.subconfigs.CoreCSVConfig
 import edu.kit.ifv.application.steps.ActivityTypesConfig
@@ -160,6 +161,7 @@ import mode.PlaceholderProvider
 import mode.tutorialModeChoiceModel
 import util.TutorialActivity
 import util.TutorialMode
+import util.loadDestinationChoiceModel
 import util.tutorialChoiceModelModes
 import util.tutorialChoiceModelPurposes
 import java.nio.file.Path
@@ -423,10 +425,7 @@ fun main(args: Array<String>) {
         }
 
         // Initialize decision-making models for destination choice.
-
-        loadDestinationChoiceModel(
-            choiceModel = tutorialDestinationChoiceModel()
-        )
+        loadDestinationChoiceModel(::tutorialDestinationChoiceModel)
 
         // Convert static data into active agents ready for the agent-based simulation.
         buildSimulationAgents( // TODO maybe create individual model steps to set up the state machines

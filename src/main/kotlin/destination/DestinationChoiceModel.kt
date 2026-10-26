@@ -111,13 +111,18 @@ data class DestinationChoiceParameters(
     val max_attractivity: Double = 1000000.0,
 )
 
+fun tutorialDestinationChoiceModel(
+    impedance: Impedance,
+   attractivenessModel: AttractivenessModel,
+   modeAvailabilityModel: ModeAvailabilityModel
+) = context(impedance, attractivenessModel, modeAvailabilityModel) { tutorialDestinationChoiceModel() }
+
 context(
     impedance: Impedance,
     attractivenessModel: AttractivenessModel,
-    modeAvailabilityModel: ModeAvailabilityModel,
-//    modeChoiceCharacteristics: ModeChoiceCharacteristics
+    modeAvailabilityModel: ModeAvailabilityModel
 )
-fun tutorialDestinationChoiceModel() = destinationChoiceStructure<DestinationChoiceParameters> { sit -> (
+private fun tutorialDestinationChoiceModel() = destinationChoiceStructure<DestinationChoiceParameters> { sit -> (
 
         (
                 b_attr
