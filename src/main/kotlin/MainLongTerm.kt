@@ -41,6 +41,7 @@ import edu.kit.ifv.units.meters
 import longterm.RastattHouseholdAttributes
 import longterm.RastattPersonAttributes
 import longterm.RastattZone
+import longterm.activitygeneration.ChildlessActiToppNGGenerator
 import longterm.rastattPopulationParser
 import longterm.rules.RastattRuleProvider
 import longterm.rules.RastattSynthesisZoneTargets
@@ -184,7 +185,7 @@ fun main() {
             assignStrategy = UnfilteredSeniority()
         )
         assignActivities {
-            ActiToppNGGenerator(tutorialChoiceModelPurposes) {
+            ChildlessActiToppNGGenerator(tutorialChoiceModelPurposes) {
                 AreaType.UNKNOWN
             }
         }
