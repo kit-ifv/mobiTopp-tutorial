@@ -114,8 +114,8 @@ data class DestinationChoiceParameters(
 context(
     impedance: Impedance,
     attractivenessModel: AttractivenessModel,
-    modeAvailabilityModel: ModeAvailabilityModel,
-    modeChoiceCharacteristics: ModeChoiceCharacteristics)
+    modeAvailabilityModel: ModeAvailabilityModel
+)
 fun tutorialDestinationChoiceModel() = destinationChoiceStructure<DestinationChoiceParameters> { sit -> (
 
         (
