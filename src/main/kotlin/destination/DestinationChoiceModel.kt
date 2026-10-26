@@ -111,7 +111,7 @@ data class DestinationChoiceParameters(
     val max_attractivity: Double = 1000000.0,
 )
 
-fun tutorialDestinationChoiceModel(
+fun tutorialDestinationChoiceModelWith(
     impedance: Impedance,
    attractivenessModel: AttractivenessModel,
    modeAvailabilityModel: ModeAvailabilityModel

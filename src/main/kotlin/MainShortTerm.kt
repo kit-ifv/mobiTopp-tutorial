@@ -1,6 +1,6 @@
 @file:Suppress("UnusedPrivateProperty", "MagicNumber")
 
-import destination.tutorialDestinationChoiceModel
+import destination.tutorialDestinationChoiceModelWith
 import edu.kit.ifv.application.config.subconfigs.BaseCSVFiles
 import edu.kit.ifv.application.config.subconfigs.CoreCSVConfig
 import edu.kit.ifv.application.steps.ActivityTypesConfig
@@ -415,7 +415,7 @@ fun main(args: Array<String>) {
         }
 
         // Initialize decision-making models for destination choice.
-        loadDestinationChoiceModel(::tutorialDestinationChoiceModel)
+        loadDestinationChoiceModel(::tutorialDestinationChoiceModelWith)
 
         // Convert static data into active agents ready for the agent-based simulation.
         buildSimulationAgents( // TODO maybe create individual model steps to set up the state machines
