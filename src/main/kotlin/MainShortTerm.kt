@@ -1,15 +1,12 @@
 @file:Suppress("UnusedPrivateProperty", "MagicNumber")
 
-import destination.WrappedDestinationChoice
 import destination.tutorialDestinationChoiceModel
-import destination.tutorialDestinationChoiceModelWith
 import edu.kit.ifv.application.config.subconfigs.BaseCSVFiles
 import edu.kit.ifv.application.config.subconfigs.CoreCSVConfig
 import edu.kit.ifv.application.steps.ActivityTypesConfig
 import edu.kit.ifv.application.steps.AttractivenessFileConfig
 import edu.kit.ifv.application.steps.CarCodesConfig
 import edu.kit.ifv.application.steps.DrtSourceFilesConfig
-import edu.kit.ifv.application.steps.HasArrayBackedImpedance
 import edu.kit.ifv.application.steps.HasAttractivenessModel
 import edu.kit.ifv.application.steps.HasCarRepo
 import edu.kit.ifv.application.steps.HasChoiceModelModes
@@ -18,7 +15,6 @@ import edu.kit.ifv.application.steps.HasDrtProviderRepo
 import edu.kit.ifv.application.steps.HasHouseholdRepo
 import edu.kit.ifv.application.steps.HasModeChoiceModel
 import edu.kit.ifv.application.steps.HasModes
-import edu.kit.ifv.application.steps.HasMutableArrayBackedImpedance
 import edu.kit.ifv.application.steps.HasMutableAttractivenessModel
 import edu.kit.ifv.application.steps.HasMutableDestinationChoiceModel
 import edu.kit.ifv.application.steps.HasMutableImpedance
@@ -45,7 +41,6 @@ import edu.kit.ifv.application.steps.model.assignHouseholdLocation
 import edu.kit.ifv.application.steps.model.assignMainCarUsers
 import edu.kit.ifv.application.steps.model.buildSimulationAgents
 import edu.kit.ifv.application.steps.model.gaussianDurationRandomizer
-import edu.kit.ifv.application.steps.model.loadDestinationChoiceModel
 import edu.kit.ifv.application.steps.model.simpleDrtAlgorithm
 import edu.kit.ifv.application.steps.model.simulate
 import edu.kit.ifv.application.steps.parser.csv.bikeSharingProviderCsv
@@ -72,7 +67,6 @@ import edu.kit.ifv.application.steps.parser.csv.sharingProviders
 import edu.kit.ifv.application.steps.parser.csv.zoneCsv
 import edu.kit.ifv.application.steps.parser.csv.zones
 import edu.kit.ifv.application.steps.parser.csv.zonesByFootInRadius
-import edu.kit.ifv.application.steps.parser.loadArrayBackedImpedance
 import edu.kit.ifv.application.steps.parser.loadImpedance
 import edu.kit.ifv.application.steps.results.addPlot
 import edu.kit.ifv.application.steps.results.createHtmlReport
@@ -110,7 +104,6 @@ import edu.kit.ifv.domain.shared.enums.Mode
 import edu.kit.ifv.domain.shared.enums.areatype.RegioStaR17
 import edu.kit.ifv.domain.shared.enums.areatype.RegionType
 import edu.kit.ifv.domain.shared.enums.household.EconomicStatus
-import edu.kit.ifv.domain.shared.location.ArrayBackedImpedance
 import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.shared.location.zone.MaximalZone
@@ -145,7 +138,6 @@ import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.units.CurrencyUnit
 import edu.kit.ifv.units.DistanceUnit
 import edu.kit.ifv.units.UnitIntervalValue
-import edu.kit.ifv.units.kilograms
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.units.meters
 import edu.kit.ifv.units.share
@@ -156,7 +148,6 @@ import edu.kit.ifv.utils.collections.mapToBins
 import edu.kit.ifv.utils.report.ReportBuilder
 import edu.kit.ifv.utils.units.AbsoluteTime
 import edu.kit.ifv.utils.units.Time
-import longterm.rules.RastattRuleProvider
 import mode.PlaceholderProvider
 import mode.tutorialModeChoiceModel
 import util.TutorialActivity
@@ -165,8 +156,6 @@ import util.loadDestinationChoiceModel
 import util.tutorialChoiceModelModes
 import util.tutorialChoiceModelPurposes
 import java.nio.file.Path
-import kotlin.context
-import kotlin.getValue
 import kotlin.io.path.Path
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
@@ -276,15 +265,16 @@ class RastattContext:
             PlaceholderProvider(it)
         }
     )
-    override var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics> =
-        WrappedDestinationChoice(
-            { impedance },
-            { attractiveness },
-            choicesSpawner = { zoneRepository.elements.map { it.centroidLocation }.toSet() },
-            identifiableMap = { it.zoneId },
-            name = "FastDestinationChoiceModel",
-            modeAvailability = modeAvailability
-        )
+    override lateinit var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
+//    =
+//        WrappedDestinationChoice(
+//            { impedance },
+//            { attractiveness },
+//            choicesSpawner = { zoneRepository.elements.map { it.centroidLocation }.toSet() },
+//            identifiableMap = { it.zoneId },
+//            name = "FastDestinationChoiceModel",
+//            modeAvailability = modeAvailability
+//        )
 
     override val spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics> =  {
             person, time, origin, destination, currentChoices,  custom ->
