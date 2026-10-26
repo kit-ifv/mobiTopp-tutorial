@@ -15,7 +15,7 @@ import util.times
 import kotlin.math.exp
 import kotlin.math.ln
 
-context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
+context(modeAvailabilityModel: ModeAvailabilityModel, impedance: Impedance)
 val DestinationAlternative.logsumDest: Double get() =
     ln(
         exp(utilityPed) +

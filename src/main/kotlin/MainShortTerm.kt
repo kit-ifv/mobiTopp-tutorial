@@ -81,7 +81,6 @@ import edu.kit.ifv.application.steps.results.personLegs
 import edu.kit.ifv.application.steps.results.writeTrips
 import edu.kit.ifv.core.modelsteps.Cloneable
 import edu.kit.ifv.core.modelsteps.Config
-import edu.kit.ifv.core.modelsteps.Context
 import edu.kit.ifv.core.modelsteps.ExecutionMode
 import edu.kit.ifv.core.modelsteps.Simulation
 import edu.kit.ifv.core.modelsteps.initReport
@@ -275,7 +274,15 @@ class RastattContext:
             PlaceholderProvider(it)
         }
     )
-    override lateinit var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics>
+    override var destinationChoiceModel: FixedChoiceModel<StandardLocation, DestinationChoiceCharacteristics> =
+        WrappedDestinationChoice(
+            { impedance },
+            { attractiveness },
+            choicesSpawner = { zoneRepository.elements.map { it.centroidLocation }.toSet() },
+            identifiableMap = { it.zoneId },
+            name = "FastDestinationChoiceModel",
+            modeAvailability = modeAvailability
+        )
 
     override val spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics> =  {
             person, time, origin, destination, currentChoices,  custom ->
@@ -333,6 +340,7 @@ fun main(args: Array<String>) {
 
     }.steps {
         // Load travel time, cost, and distance matrices for all transport modes.
+//        loadArrayBackedImpedance()
         loadImpedance()
 
         // Define the spatial zones and their properties for the study area.
@@ -417,8 +425,7 @@ fun main(args: Array<String>) {
         // Initialize decision-making models for destination choice.
 
         loadDestinationChoiceModel(
-            choiceModel = context(impedance, attractiveness, modeAvailability){tutorialDestinationChoiceModel()},
-
+            choiceModel = tutorialDestinationChoiceModel()
         )
 
         // Convert static data into active agents ready for the agent-based simulation.

@@ -9,11 +9,8 @@ import edu.kit.ifv.domain.shared.location.Impedance
 import edu.kit.ifv.domain.shared.location.StandardLocation
 import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationAlternative
-import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.kilometers
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.minutes
-import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
-import edu.kit.ifv.domain.simulation.data.person.IPerson
 import edu.kit.ifv.domain.simulation.data.person.isAdult
 import edu.kit.ifv.utils.units.AbsoluteTime
 import util.Mode
@@ -98,11 +95,6 @@ context(impedance: Impedance)
 fun DestinationAlternative.travelCostEuroToFixed(mode: Mode): Double =
     impedance.cost(choice, nextFixedDestination, mode, nextFixedActivityEnd).euros
 
-context(impedance: Impedance)
-private val ModeChoiceCharacteristics.prevMode: Mode?
-    get() = person.schedule.pastLegs().lastOrNull()?.transportType
-
-
 val DestinationAlternative.purpose: ActivityType get() = person.schedule.activities().first().type
 val DestinationAlternative.isPurposeWork: Boolean get() = (purpose == TutorialActivity.WORK)
 val DestinationAlternative.isPurposeBusiness: Boolean get() = (purpose == TutorialActivity.BUSINESS)
@@ -154,7 +146,8 @@ val DestinationAlternative.attractivity: Double get() = attractivityModel.attrac
 
 // availability properties
 context(modeAvailabilityFilter: ModeAvailabilityModel)
-private fun DestinationChoiceCharacteristics.isAvailable(mode: Mode): Boolean = context(this.person) {modeAvailabilityFilter.asStaticAvailabilityFilter().filter(mode)}
+private fun DestinationAlternative.isAvailable(mode: Mode): Boolean =
+    modeAvailabilityFilter.asProviderAvailabilityFilter().filter(mode)
 
 context(modeAvailabilityFilter: ModeAvailabilityModel)
 val DestinationAlternative.isPedAvailable get() = isAvailable(pedestrian)
