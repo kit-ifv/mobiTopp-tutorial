@@ -13,12 +13,13 @@ data class RastattHouseholdAttributes constructor(
     override val type: HouseholdType,
     override var amountOfCars: Int,
     val householdIncomeClass: Int,
+    override var economicStatus: EconomicStatus = EconomicStatus.MIDDLE
 ): MaximumHouseholdAttributes {
 
     // Fields that get set during the simulation and are not known beforehand. 
     override var location: StandardLocation = StandardLocation.LOCATIONUNKNOWN
 
-    override var economicStatus: EconomicStatus = EconomicStatus.MIDDLE
+
 
     lateinit var regioStar : RegioStaR7
 }
