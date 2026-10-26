@@ -25,15 +25,19 @@ import edu.kit.ifv.mobitopp.actitoppNG.HouseholdPlanGeneration
 import edu.kit.ifv.mobitopp.actitoppNG.PersonAttributes
 import edu.kit.ifv.mobitopp.actitoppNG.PlanGenerationParameters
 import edu.kit.ifv.mobitopp.actitoppNG.StandardHouseholdPlanGeneration
+import edu.kit.ifv.mobitopp.actitoppNG.enums.ActivityType
 import edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType
 import edu.kit.ifv.mobitopp.actitoppNG.modernization.ReusablePlanGeneration
 import edu.kit.ifv.mobitopp.actitoppNG.modernization.plan.MobilityPlan
 import edu.kit.ifv.units.Distance
 import edu.kit.ifv.units.kilometers
 import edu.kit.ifv.utils.units.sinceStart
+import util.TutorialActivity
 import java.lang.Double
 import kotlin.collections.component1
 import kotlin.collections.component2
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 
 class ChildlessActiToppNGGenerator<in S, in T>(
     val purposes: ChoiceModelPurposes,
@@ -60,7 +64,13 @@ class ChildlessActiToppNGGenerator<in S, in T>(
         purposes,
         actiToppAdapter = StandardActiToppAdapter(purposes, converter = converter),
     )
-
+    private fun stayAtHome(household: ISurveyHousehold<S, T>) = PreliminaryActivitySchedule(mutableListOf
+        (RawActivity(
+        household.attributes.location,
+        startTime = 0.minutes.sinceStart,
+        endTime = 7.days.sinceStart,
+        type = TutorialActivity.HOME
+    )))
     /** Generates a schedule for *all* members of the supplied [household]. */
     override fun generate(household: ISurveyHousehold<S, T>): List<PreliminaryActivitySchedule> {
         val actHH = convert(household)
@@ -72,7 +82,7 @@ class ChildlessActiToppNGGenerator<in S, in T>(
             if (member.age >= 10) {
                 finish(schedules.next())
             } else {
-                PreliminaryActivitySchedule.STAY_AT_HOME
+                stayAtHome(household)
             }
         }
     }
