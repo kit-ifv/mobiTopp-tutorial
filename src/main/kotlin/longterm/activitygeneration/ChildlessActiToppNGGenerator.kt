@@ -65,7 +65,16 @@ class ChildlessActiToppNGGenerator<in S, in T>(
     override fun generate(household: ISurveyHousehold<S, T>): List<PreliminaryActivitySchedule> {
         val actHH = convert(household)
         val output = strategy.generateSchedules(actHH)
-        return output.entries.map { (_, v) -> finish(v) }
+
+        val schedules = output.values.iterator()
+
+        return household.members.map { member ->
+            if (member.age >= 10) {
+                finish(schedules.next())
+            } else {
+                PreliminaryActivitySchedule.STAY_AT_HOME
+            }
+        }
     }
 
     /**
