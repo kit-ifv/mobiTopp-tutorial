@@ -115,7 +115,8 @@ context(
     impedance: Impedance,
     attractivenessModel: AttractivenessModel,
     modeAvailabilityModel: ModeAvailabilityModel,
-    modeChoiceCharacteristics: ModeChoiceCharacteristics)
+//    modeChoiceCharacteristics: ModeChoiceCharacteristics
+)
 fun tutorialDestinationChoiceModel() = destinationChoiceStructure<DestinationChoiceParameters> { sit -> (
 
         (

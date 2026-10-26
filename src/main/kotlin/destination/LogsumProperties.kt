@@ -15,7 +15,7 @@ import util.times
 import kotlin.math.exp
 import kotlin.math.ln
 
-context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
+context(modeAvailabilityModel: ModeAvailabilityModel, impedance: Impedance)
 val DestinationAlternative.logsumDest: Double get() =
     ln(
         exp(utilityPed) +
@@ -38,7 +38,7 @@ val DestinationAlternative.logsumDest: Double get() =
         -50.0
     }
 
-context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
+context(modeAvailabilityModel: ModeAvailabilityModel, impedance: Impedance)
 val DestinationAlternative.logsumDestPt: Double get() =
     ln(
         exp(utilityPed) +
@@ -51,7 +51,7 @@ val DestinationAlternative.logsumDestPt: Double get() =
         -50.0
     }
 
-context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
+context(modeAvailabilityModel: ModeAvailabilityModel, impedance: Impedance)
 val DestinationAlternative.logsumDestDrive: Double get() =
     ln(
         isCarAvailable * exp(utilityCarDriver)
@@ -62,13 +62,13 @@ val DestinationAlternative.logsumDestDrive: Double get() =
         -50.0
     }
 
-context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
+context(modeAvailabilityModel: ModeAvailabilityModel, impedance: Impedance)
 val DestinationAlternative.logsumDestRide: Double get() =
     ln(
         exp(utilityCarPassenger) //kein TAXI, kein RIDEPOOLING
     ) + if (isPassengerAvailable) 0.0 else -50.0
 
-context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
+context(modeAvailabilityModel: ModeAvailabilityModel, impedance: Impedance)
 val DestinationAlternative.logsumFixDest: Double get() =
     ln(
         exp(utilityFixPed) +
@@ -92,7 +92,7 @@ val DestinationAlternative.logsumFixDest: Double get() =
         -50.0
     }
 
-context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
+context(modeAvailabilityModel: ModeAvailabilityModel, impedance: Impedance)
 val DestinationAlternative.logsumFixDestPt: Double get() =
     ln(
         exp(utilityFixPed) +
@@ -106,7 +106,7 @@ val DestinationAlternative.logsumFixDestPt: Double get() =
     }
 
 
-context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
+context(modeAvailabilityModel: ModeAvailabilityModel, impedance: Impedance)
 val DestinationAlternative.logsumFixDestDrive: Double get() =
     ln(
         isCarAvailable * exp(utilityFixCarDriver)
@@ -117,7 +117,7 @@ val DestinationAlternative.logsumFixDestDrive: Double get() =
         -50.0
     }
 
-context(modeAvailabilityModel: ModeAvailabilityModel, modeChoiceCharacteristics: ModeChoiceCharacteristics, impedance: Impedance)
+context(modeAvailabilityModel: ModeAvailabilityModel, impedance: Impedance)
 val  DestinationAlternative.logsumFixDestRide: Double get() =
     ln(
         exp(utilityFixCarPassenger)

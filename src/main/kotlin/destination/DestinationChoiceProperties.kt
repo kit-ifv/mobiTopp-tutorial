@@ -11,7 +11,6 @@ import edu.kit.ifv.domain.simulation.behavior.availability.ModeAvailabilityModel
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.DestinationAlternative
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.kilometers
 import edu.kit.ifv.domain.simulation.behavior.destinationchoice.minutes
-import edu.kit.ifv.domain.simulation.behavior.modechoice.ModeChoiceCharacteristics
 import edu.kit.ifv.domain.simulation.data.person.isAdult
 import edu.kit.ifv.utils.units.AbsoluteTime
 import util.Mode
@@ -96,11 +95,6 @@ context(impedance: Impedance)
 fun DestinationAlternative.travelCostEuroToFixed(mode: Mode): Double =
     impedance.cost(choice, nextFixedDestination, mode, nextFixedActivityEnd).euros
 
-context(impedance: Impedance)
-private val ModeChoiceCharacteristics.prevMode: Mode?
-    get() = person.schedule.pastLegs().lastOrNull()?.transportType
-
-
 val DestinationAlternative.purpose: ActivityType get() = person.schedule.activities().first().type
 val DestinationAlternative.isPurposeWork: Boolean get() = (purpose == TutorialActivity.WORK)
 val DestinationAlternative.isPurposeBusiness: Boolean get() = (purpose == TutorialActivity.BUSINESS)
@@ -152,21 +146,21 @@ val DestinationAlternative.attractivity: Double get() = attractivityModel.attrac
 
 // availability properties
 context(modeAvailabilityFilter: ModeAvailabilityModel)
-private fun ModeChoiceCharacteristics.isAvailable(mode: Mode): Boolean =
-    modeAvailabilityFilter.asResourceAvailabilityFilter().filter(mode)
+private fun DestinationAlternative.isAvailable(mode: Mode): Boolean =
+    modeAvailabilityFilter.asProviderAvailabilityFilter().filter(mode)
 
-context(modeAvailabilityFilter: ModeAvailabilityModel, modeCharacteristic: ModeChoiceCharacteristics)
-val DestinationAlternative.isPedAvailable get() = modeCharacteristic.isAvailable(pedestrian)
-context(modeAvailabilityFilter: ModeAvailabilityModel, modeCharacteristic: ModeChoiceCharacteristics)
-val DestinationAlternative.isBikeAvailable get() = modeCharacteristic.isAvailable(bike)
-context(modeAvailabilityFilter: ModeAvailabilityModel, modeCharacteristic: ModeChoiceCharacteristics)
-val DestinationAlternative.isCarAvailable get() = modeCharacteristic.isAvailable(car)
-context(modeAvailabilityFilter: ModeAvailabilityModel, modeCharacteristic: ModeChoiceCharacteristics)
-val DestinationAlternative.isPassengerAvailable get() = modeCharacteristic.isAvailable(passenger)
-context(modeAvailabilityFilter: ModeAvailabilityModel, modeCharacteristic: ModeChoiceCharacteristics)
-val DestinationAlternative.isPutAvailable get() = modeCharacteristic.isAvailable(publictransport)
-context(modeAvailabilityFilter: ModeAvailabilityModel, modeCharacteristic: ModeChoiceCharacteristics)
-val DestinationAlternative.isBikesharingAvailable get() = modeCharacteristic.isAvailable(bikesharing)
+context(modeAvailabilityFilter: ModeAvailabilityModel)
+val DestinationAlternative.isPedAvailable get() = isAvailable(pedestrian)
+context(modeAvailabilityFilter: ModeAvailabilityModel)
+val DestinationAlternative.isBikeAvailable get() = isAvailable(bike)
+context(modeAvailabilityFilter: ModeAvailabilityModel)
+val DestinationAlternative.isCarAvailable get() = isAvailable(car)
+context(modeAvailabilityFilter: ModeAvailabilityModel)
+val DestinationAlternative.isPassengerAvailable get() = isAvailable(passenger)
+context(modeAvailabilityFilter: ModeAvailabilityModel)
+val DestinationAlternative.isPutAvailable get() = isAvailable(publictransport)
+context(modeAvailabilityFilter: ModeAvailabilityModel)
+val DestinationAlternative.isBikesharingAvailable get() = isAvailable(bikesharing)
 
 private val DestinationAlternative.prevMode: Mode?
     get() = person.schedule.pastLegs().lastOrNull()?.transportType

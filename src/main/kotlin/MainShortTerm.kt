@@ -256,7 +256,7 @@ class RastattContext:
     HasPersonAgentRepo<PersonAgent, PersonAgent>,
     HasSharingProviderAgentRepo<SharingProviderAgent, SharingProviderAgent>,
     HasDrtProviderAgentRepo<DrtProviderAgent, DrtProviderAgent>,
-    HasMutableArrayBackedImpedance,
+    HasMutableImpedance,
     HasModes, // TODO discuss whether modes are context or config
     HasMutableDestinationChoiceModel,
     HasAttractivenessModel,
@@ -268,7 +268,7 @@ class RastattContext:
     HasReplanningStrategy {
     override val scenarioName: String = "regression test short term scenario"
     override val modes: CodePlan<Mode> = TutorialMode
-    override lateinit var impedance: ArrayBackedImpedance
+    override lateinit var impedance: Impedance
     override var modeAvailability: ModeAvailabilityModel = ModeAvailabilityByRule(
         modes.values().associateWith {
             PlaceholderProvider(it)
@@ -340,7 +340,8 @@ fun main(args: Array<String>) {
 
     }.steps {
         // Load travel time, cost, and distance matrices for all transport modes.
-        loadArrayBackedImpedance()
+//        loadArrayBackedImpedance()
+        loadImpedance()
 
         // Define the spatial zones and their properties for the study area.
         zones(sealed = true) {
@@ -424,7 +425,7 @@ fun main(args: Array<String>) {
         // Initialize decision-making models for destination choice.
 
         loadDestinationChoiceModel(
-            choiceModel = destinationChoiceModel
+            choiceModel = tutorialDestinationChoiceModel()
         )
 
         // Convert static data into active agents ready for the agent-based simulation.
